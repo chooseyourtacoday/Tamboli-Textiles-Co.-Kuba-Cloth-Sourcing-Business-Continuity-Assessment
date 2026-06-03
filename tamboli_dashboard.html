@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tamboli Textiles — DRC Supply Chain Risk Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #F7F4EF;
+    --panel:    #FFFFFF;
+    --panel2:   #F0EBE3;
+    --border:   #DDD5C8;
+    --text:     #2C2416;
+    --muted:    #8C7B6B;
+    --brown:    #5C3D1E;
+    --rust:     #C0522A;
+    --amber:    #D4920A;
+    --gold:     #B8860B;
+    --green:    #2D6A4F;
+    --ltgreen:  #E8F5EE;
+    --red:      #B71C1C;
+    --ltred:    #FFEBEE;
+    --blue:     #1565C0;
+    --ltblue:   #E3F2FD;
+    --cream:    #FDF6EC;
+    --kuba-1:   #8B4513;
+    --kuba-2:   #D2691E;
+    --kuba-3:   #F4A460;
+    --kuba-4:   #DEB887;
+    --mono:     'IBM Plex Mono', monospace;
+    --sans:     'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--brown);
+    padding: 0 32px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 4px solid var(--amber);
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+
+  /* Kuba pattern strip */
+  .kuba-strip {
+    width: 48px; height: 48px;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--kuba-1) 0px, var(--kuba-1) 4px,
+      var(--kuba-3) 4px, var(--kuba-3) 8px,
+      var(--kuba-2) 8px, var(--kuba-2) 12px,
+      var(--kuba-4) 12px, var(--kuba-4) 16px
+    );
+    border-radius: 4px;
+    border: 2px solid var(--amber);
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    color: #FFF8EC;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .header-title span {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--kuba-4);
+    margin-top: 2px;
+    font-family: var(--mono);
+  }
+
+  .header-right {
+    display: flex; gap: 24px; align-items: center;
+    font-family: var(--mono); font-size: 11px; color: var(--kuba-4);
+  }
+
+  .risk-pill {
+    background: var(--rust);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.65} }
+
+  /* ── KPI ROW ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .kpi {
+    background: var(--panel);
+    padding: 18px 22px;
+    position: relative;
+  }
+
+  .kpi::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .kpi.danger::after  { background: var(--red); }
+  .kpi.warning::after { background: var(--amber); }
+  .kpi.ok::after      { background: var(--green); }
+  .kpi.info::after    { background: var(--blue); }
+  .kpi.neutral::after { background: var(--brown); }
+
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .kpi-value {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kpi.danger  .kpi-value { color: var(--red); }
+  .kpi.warning .kpi-value { color: var(--amber); }
+  .kpi.ok      .kpi-value { color: var(--green); }
+  .kpi.info    .kpi-value { color: var(--blue); }
+  .kpi.neutral .kpi-value { color: var(--brown); }
+
+  .kpi-sub { font-size: 11px; color: var(--muted); }
+
+  /* ── MAIN GRID ── */
+  .main {
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .panel.full { grid-column: 1 / -1; }
+
+  .panel-header {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--brown);
+  }
+
+  .panel-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  .panel-body { padding: 18px; }
+
+  canvas { max-height: 260px; }
+
+  /* ── SCENARIO TABLE ── */
+  .scenario-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  .scenario-table th {
+    padding: 8px 12px;
+    background: var(--panel2);
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .scenario-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .scenario-table tr:last-child td { border-bottom: none; }
+  .scenario-table tr:hover td { background: var(--cream); }
+
+  .prob-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .prob-fill { height: 100%; border-radius: 3px; }
+
+  .sev-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .sev-badge.critical { background: var(--ltred); color: var(--red); }
+  .sev-badge.medium   { background: #FFF8E1; color: var(--amber); }
+  .sev-badge.low      { background: var(--ltgreen); color: var(--green); }
+
+  /* ── SUPPLIER TABLE ── */
+  .sup-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  .sup-table th {
+    padding: 8px 10px;
+    background: var(--panel2);
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: left;
+  }
+
+  .sup-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .risk-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  .risk-bar-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    width: 80px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .risk-bar-fill { height: 100%; border-radius: 3px; }
+
+  /* ── CONFLICT TIMELINE ── */
+  .timeline { padding: 16px 18px; }
+
+  .timeline-event {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .timeline-event:last-child { border-bottom: none; }
+
+  .t-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .t-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 72px;
+    margin-top: 2px;
+  }
+
+  .t-text { font-size: 12px; color: var(--text); }
+  .t-region { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  /* ── DIASPORA ── */
+  .diaspora-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px 18px;
+  }
+
+  .diaspora-card {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-left: 4px solid var(--blue);
+  }
+
+  .diaspora-card.active { border-left-color: var(--green); }
+  .diaspora-card.explore { border-left-color: var(--amber); }
+
+  .diaspora-name { font-weight: 700; font-size: 12px; margin-bottom: 4px; }
+  .diaspora-loc  { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .diaspora-stat { font-size: 11px; color: var(--muted); }
+  .diaspora-stat strong { color: var(--text); }
+
+  /* ── ETHICAL FRAMEWORK ── */
+  .ethics-box {
+    margin: 0 28px 20px;
+    background: var(--cream);
+    border: 1px solid var(--amber);
+    border-left: 4px solid var(--amber);
+    border-radius: 6px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .ethics-icon { font-size: 24px; flex-shrink: 0; }
+
+  .ethics-title {
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--brown);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .ethics-body { font-size: 12px; color: var(--text); line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="kuba-strip"></div>
+    <div class="header-title">
+      Tamboli Textiles Co. — DRC Supply Chain Risk Dashboard
+      <span>Kuba Cloth Sourcing & Business Continuity Assessment · March 2024</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span>ANALYST: A. MOLINA</span>
+    <span>DRC REVENUE: 60%</span>
+    <div class="risk-pill">⚠ ELEVATED RISK</div>
+  </div>
+</header>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi danger">
+    <div class="kpi-label">DRC Revenue at Risk</div>
+    <div class="kpi-value">$407K</div>
+    <div class="kpi-sub">60% of total revenue</div>
+  </div>
+  <div class="kpi warning">
+    <div class="kpi-label">Expected Value Impact</div>
+    <div class="kpi-value">-$103K</div>
+    <div class="kpi-sub">Probability-weighted</div>
+  </div>
+  <div class="kpi warning">
+    <div class="kpi-label">Closest Supplier</div>
+    <div class="kpi-value">195km</div>
+    <div class="kpi-sub">SUP-003 to M23 front</div>
+  </div>
+  <div class="kpi info">
+    <div class="kpi-label">Diaspora Capacity</div>
+    <div class="kpi-value">415</div>
+    <div class="kpi-sub">Units/yr · 63% of DRC vol.</div>
+  </div>
+  <div class="kpi neutral">
+    <div class="kpi-label">Artisans at Risk</div>
+    <div class="kpi-value">54</div>
+    <div class="kpi-sub">Across 3 DRC collectives</div>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main">
+
+  <!-- Revenue Trend -->
+  <div class="panel full">
+    <div class="panel-header">
+      <div class="panel-title">Revenue Trend — DRC vs Non-DRC (2019–2024)</div>
+      <div class="panel-meta">Kasai crisis 2016–2018 visible · Red shading = DRC exposure</div>
+    </div>
+    <div class="panel-body">
+      <canvas id="revChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Scenario Model -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Conflict Escalation Scenarios</div>
+      <div class="panel-meta">Financial impact model · 4 scenarios</div>
+    </div>
+    <div class="panel-body" style="padding:0">
+      <table class="scenario-table">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Probability</th>
+            <th>Revenue Impact</th>
+            <th>Humanitarian</th>
+          </tr>
+        </thead>
+        <tbody id="scenarioBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Supplier Risk -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Supplier Risk Register</div>
+      <div class="panel-meta">DRC suppliers · Distance to conflict</div>
+    </div>
+    <div class="panel-body" style="padding:0">
+      <table class="sup-table">
+        <thead>
+          <tr>
+            <th>Supplier</th>
+            <th>Artisans</th>
+            <th>Risk Score</th>
+            <th>Distance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="supplierBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Conflict Timeline -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Conflict Event Timeline</div>
+      <div class="panel-meta">Key events · Displacement data</div>
+    </div>
+    <div class="timeline" id="timeline" style="max-height:320px;overflow-y:auto"></div>
+  </div>
+
+  <!-- Diaspora Network -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Diaspora Supplier Network</div>
+      <div class="panel-meta">Mitigation hedge · 4 collectives</div>
+    </div>
+    <div class="diaspora-grid" id="diasporaGrid"></div>
+  </div>
+
+  <!-- Revenue by Product Donut -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">2023 Revenue by Origin</div>
+      <div class="panel-meta">DRC concentration risk</div>
+    </div>
+    <div class="panel-body">
+      <canvas id="originChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ETHICAL FRAMEWORK BOX -->
+<div class="ethics-box">
+  <div class="ethics-icon">🤝</div>
+  <div>
+    <div class="ethics-title">Ethical Framework — No PMC. No Abandonment.</div>
+    <div class="ethics-body">
+      Tamboli Textiles does not deploy or fund private military contractors. The recommended response is <strong>Pause + Pivot</strong>:
+      maintain fair-trade pricing even as order volumes decline, establish a $15,000 artisan emergency fund,
+      develop the diaspora network as an <em>expansion</em> (not a replacement), and partner with organizations
+      documenting Kuba weaving techniques to preserve knowledge even if production is disrupted.
+      The financial case and the ethical case point in the same direction.
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>Tamboli Textiles Co. — Internal Strategic Analysis · Case TAM-2024-DRC · March 2024</span>
+  <span>Analyst: Alejandro Molina · github.com/chooseyourtacoday · All company data is synthetic</span>
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DRC_MONTHLY = [
+  {m:'Jan 2019',v:13650},{m:'Feb 2019',v:13494},{m:'Mar 2019',v:15893},{m:'Apr 2019',v:14120},
+  {m:'May 2019',v:13201},{m:'Jun 2019',v:12888},{m:'Jul 2019',v:14540},{m:'Aug 2019',v:13990},
+  {m:'Sep 2019',v:15210},{m:'Oct 2019',v:14320},{m:'Nov 2019',v:18940},{m:'Dec 2019',v:20100},
+  {m:'Jan 2020',v:10200},{m:'Feb 2020',v:11400},{m:'Mar 2020',v:16800},{m:'Apr 2020',v:15200},
+  {m:'May 2020',v:14100},{m:'Jun 2020',v:13800},{m:'Jul 2020',v:15900},{m:'Aug 2020',v:15200},
+  {m:'Sep 2020',v:16700},{m:'Oct 2020',v:15800},{m:'Nov 2020',v:20900},{m:'Dec 2020',v:22100},
+  {m:'Jan 2021',v:11200},{m:'Feb 2021',v:12500},{m:'Mar 2021',v:18400},{m:'Apr 2021',v:16700},
+  {m:'May 2021',v:15400},{m:'Jun 2021',v:15100},{m:'Jul 2021',v:17400},{m:'Aug 2021',v:16600},
+  {m:'Sep 2021',v:18300},{m:'Oct 2021',v:17300},{m:'Nov 2021',v:22800},{m:'Dec 2021',v:24200},
+  {m:'Jan 2022',v:12300},{m:'Feb 2022',v:13700},{m:'Mar 2022',v:20200},{m:'Apr 2022',v:18300},
+  {m:'May 2022',v:16900},{m:'Jun 2022',v:16500},{m:'Jul 2022',v:19100},{m:'Aug 2022',v:18200},
+  {m:'Sep 2022',v:20100},{m:'Oct 2022',v:19000},{m:'Nov 2022',v:25100},{m:'Dec 2022',v:26600},
+  {m:'Jan 2023',v:13500},{m:'Feb 2023',v:15000},{m:'Mar 2023',v:22100},{m:'Apr 2023',v:20100},
+  {m:'May 2023',v:18500},{m:'Jun 2023',v:18000},{m:'Jul 2023',v:20900},{m:'Aug 2023',v:19900},
+  {m:'Sep 2023',v:21900},{m:'Oct 2023',v:20800},{m:'Nov 2023',v:27500},{m:'Dec 2023',v:29100},
+  {m:'Jan 2024',v:14200},{m:'Feb 2024',v:15800},
+];
+
+const NON_DRC = [
+  {m:'Jan 2019',v:12944},{m:'Feb 2019',v:11640},{m:'Mar 2019',v:13700},{m:'Apr 2019',v:12800},
+  {m:'May 2019',v:12100},{m:'Jun 2019',v:11800},{m:'Jul 2019',v:13200},{m:'Aug 2019',v:12700},
+  {m:'Sep 2019',v:13800},{m:'Oct 2019',v:13000},{m:'Nov 2019',v:17200},{m:'Dec 2019',v:18300},
+  {m:'Jan 2020',v:9200},{m:'Feb 2020',v:10400},{m:'Mar 2020',v:15300},{m:'Apr 2020',v:13800},
+  {m:'May 2020',v:12800},{m:'Jun 2020',v:12500},{m:'Jul 2020',v:14500},{m:'Aug 2020',v:13800},
+  {m:'Sep 2020',v:15200},{m:'Oct 2020',v:14400},{m:'Nov 2020',v:19000},{m:'Dec 2020',v:20100},
+  {m:'Jan 2021',v:10200},{m:'Feb 2021',v:11400},{m:'Mar 2021',v:16800},{m:'Apr 2021',v:15200},
+  {m:'May 2021',v:14000},{m:'Jun 2021',v:13700},{m:'Jul 2021',v:15800},{m:'Aug 2021',v:15100},
+  {m:'Sep 2021',v:16600},{m:'Oct 2021',v:15700},{m:'Nov 2021',v:20700},{m:'Dec 2021',v:22000},
+  {m:'Jan 2022',v:11200},{m:'Feb 2022',v:12500},{m:'Mar 2022',v:18400},{m:'Apr 2022',v:16700},
+  {m:'May 2022',v:15400},{m:'Jun 2022',v:15000},{m:'Jul 2022',v:17400},{m:'Aug 2022',v:16600},
+  {m:'Sep 2022',v:18300},{m:'Oct 2022',v:17300},{m:'Nov 2022',v:22800},{m:'Dec 2022',v:24100},
+  {m:'Jan 2023',v:12300},{m:'Feb 2023',v:13700},{m:'Mar 2023',v:20100},{m:'Apr 2023',v:18300},
+  {m:'May 2023',v:16900},{m:'Jun 2023',v:16400},{m:'Jul 2023',v:19000},{m:'Aug 2023',v:18100},
+  {m:'Sep 2023',v:20000},{m:'Oct 2023',v:18900},{m:'Nov 2023',v:24900},{m:'Dec 2023',v:26400},
+  {m:'Jan 2024',v:12900},{m:'Feb 2024',v:14400},
+];
+
+const SCENARIOS = [
+  {name:'Status Quo',           prob:0.30, impact:-0,      impact_usd:0,        hum:'LOW',      proj:684660},
+  {name:'Moderate Escalation',  prob:0.45, impact:-0.40,   impact_usd:-116400,  hum:'MEDIUM',   proj:568260},
+  {name:'Severe Escalation',    prob:0.20, impact:-0.85,   impact_usd:-247350,  hum:'CRITICAL', proj:437310},
+  {name:'Conflict @ Kuba',      prob:0.05, impact:-1.00,   impact_usd:-291000,  hum:'CRITICAL', proj:393660},
+];
+
+const SUPPLIERS = [
+  {name:'Nkosi Weaving Collective',  artisans:24, risk:72, dist:280, status:'Active'},
+  {name:'Bushoong Royal Weavers',    artisans:12, risk:68, dist:310, status:'Active'},
+  {name:'Shoowa Textile Guild',      artisans:18, risk:81, dist:195, status:'Intermittent'},
+  {name:'Kumasi Kente Cooperative',  artisans:32, risk:12, dist:2800,status:'Active'},
+  {name:'Segou Mudcloth Artisans',   artisans:15, risk:44, dist:0,   status:'Active'},
+];
+
+const CONFLICT = [
+  {date:'2016-08',phase:'Kasai',    sev:'HIGH',     desc:'Kamuina Nsapu militia clashes begin near Tshikapa',  displaced:'120K'},
+  {date:'2017-02',phase:'Kasai',    sev:'CRITICAL', desc:'Violence spreads toward Kananga — 280K displaced',     displaced:'280K'},
+  {date:'2017-07',phase:'Kasai',    sev:'HIGH',     desc:'Fighting nears Mbuji-Mayi — 60km from Kuba homeland', displaced:'680K'},
+  {date:'2018-01',phase:'Kasai',    sev:'MEDIUM',   desc:'Ceasefire agreement — reduced violence',               displaced:'1.4M'},
+  {date:'2019-03',phase:'Recovery', sev:'LOW',      desc:'Partial stability — supply routes reopened',           displaced:'320K'},
+  {date:'2022-11',phase:'M23',      sev:'CRITICAL', desc:'M23 advances toward Goma — 420K displaced',           displaced:'420K'},
+  {date:'2023-06',phase:'M23',      sev:'HIGH',     desc:'Conflict expands to South Kivu',                       displaced:'720K'},
+  {date:'2023-10',phase:'M23',      sev:'HIGH',     desc:'Peace talks in Angola collapse',                       displaced:'850K'},
+  {date:'2024-01',phase:'M23',      sev:'CRITICAL', desc:'M23 besieges Goma (2M population)',                   displaced:'1.2M'},
+  {date:'2024-02',phase:'M23',      sev:'CRITICAL', desc:'M23 advances on Bukavu — conflict expanding west',    displaced:'1.5M'},
+];
+
+const DIASPORA = [
+  {name:'Kuba Arts Collective — Brussels', loc:'Brussels, Belgium',  units:120, premium:35, lead:21, status:'Active'},
+  {name:'Congo Textile Arts — Paris',      loc:'Paris, France',      units:160, premium:40, lead:18, status:'Active'},
+  {name:'Raffia & Root Studio — Brooklyn', loc:'Brooklyn, NY, USA',  units:55,  premium:55, lead:14, status:'Exploratory'},
+  {name:'Kasai Weavers Network — London',  loc:'London, UK',         units:80,  premium:45, lead:16, status:'Exploratory'},
+];
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────────
+Chart.defaults.color = '#8C7B6B';
+Chart.defaults.borderColor = '#DDD5C8';
+Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+Chart.defaults.font.size = 11;
+
+const TT = {
+  backgroundColor: '#FFFFFF',
+  borderColor: '#DDD5C8',
+  borderWidth: 1,
+  titleColor: '#2C2416',
+  bodyColor: '#5C3D1E',
+  padding: 10,
+  cornerRadius: 4,
+};
+
+// ── REVENUE CHART ─────────────────────────────────────────────────────────────
+const revCtx = document.getElementById('revChart').getContext('2d');
+const drcGrad = revCtx.createLinearGradient(0,0,0,260);
+drcGrad.addColorStop(0,'rgba(192,82,42,0.25)');
+drcGrad.addColorStop(1,'rgba(192,82,42,0.02)');
+
+new Chart(revCtx, {
+  type: 'line',
+  data: {
+    labels: DRC_MONTHLY.map(d => d.m),
+    datasets: [
+      {
+        label: 'DRC-Sourced Revenue (HIGH RISK)',
+        data: DRC_MONTHLY.map(d => d.v),
+        borderColor: '#C0522A',
+        backgroundColor: drcGrad,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+      },
+      {
+        label: 'Non-DRC Revenue (Ghana, Mali)',
+        data: NON_DRC.map(d => d.v),
+        borderColor: '#2D6A4F',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5,3],
+        fill: false,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode:'index', intersect:false },
+    plugins: {
+      legend: { position:'top', labels:{ usePointStyle:true, pointStyleWidth:12 } },
+      tooltip: {
+        ...TT,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label.split('(')[0].trim()}: $${ctx.raw.toLocaleString()}`
+        }
+      }
+    },
+    scales: {
+      x: { grid:{color:'rgba(180,160,140,0.2)'}, ticks:{maxRotation:45, maxTicksLimit:18, font:{size:9}} },
+      y: { grid:{color:'rgba(180,160,140,0.2)'}, ticks:{callback: v => `$${(v/1000).toFixed(0)}K`} }
+    }
+  }
+});
+
+// ── ORIGIN DONUT ──────────────────────────────────────────────────────────────
+new Chart(document.getElementById('originChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Kasai Region, DRC (HIGH)', 'Ashanti, Ghana (LOW)', 'Segou, Mali (MEDIUM)', 'Ntonso, Ghana (LOW)'],
+    datasets: [{
+      data: [407056, 125040, 90548, 61172],
+      backgroundColor: ['#C0522A','#2D6A4F','#D4920A','#5B9E7A'],
+      borderColor: '#FFFFFF',
+      borderWidth: 3,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position:'bottom', labels:{ font:{size:10}, padding:10 } },
+      tooltip: {
+        ...TT,
+        callbacks: {
+          label: ctx => ` $${ctx.raw.toLocaleString()} (${(ctx.raw/684660*100).toFixed(1)}%)`
+        }
+      }
+    },
+    cutout: '58%',
+  }
+});
+
+// ── SCENARIO TABLE ─────────────────────────────────────────────────────────────
+const scenBody = document.getElementById('scenarioBody');
+const probColors = ['#2D6A4F','#D4920A','#B71C1C','#7B1FA2'];
+SCENARIOS.forEach((s, i) => {
+  const hum_class = s.hum === 'CRITICAL' ? 'critical' : s.hum === 'MEDIUM' ? 'medium' : 'low';
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>
+      <strong style="font-size:12px">${s.name}</strong>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">
+        Proj. revenue: $${s.proj.toLocaleString()}
+      </div>
+    </td>
+    <td>
+      <div style="font-family:var(--mono);font-weight:700;font-size:13px;color:${probColors[i]}">${(s.prob*100).toFixed(0)}%</div>
+      <div class="prob-bar"><div class="prob-fill" style="width:${s.prob*100}%;background:${probColors[i]}"></div></div>
+    </td>
+    <td>
+      <div style="font-family:var(--mono);font-weight:700;font-size:13px;color:${s.impact_usd < 0 ? 'var(--red)' : 'var(--green)'}">
+        ${s.impact_usd === 0 ? '$0' : '$' + Math.abs(s.impact_usd).toLocaleString()}
+      </div>
+      <div style="font-size:10px;color:var(--muted)">${s.impact_usd < 0 ? 'loss' : 'no change'}</div>
+    </td>
+    <td><span class="sev-badge ${hum_class}">${s.hum}</span></td>
+  `;
+  scenBody.appendChild(row);
+});
+
+// ── SUPPLIER TABLE ────────────────────────────────────────────────────────────
+const supBody = document.getElementById('supplierBody');
+SUPPLIERS.forEach(s => {
+  const isDRC = s.dist < 2000;
+  const riskColor = s.risk >= 70 ? 'var(--red)' : s.risk >= 40 ? 'var(--amber)' : 'var(--green)';
+  const dotColor  = s.risk >= 70 ? '#B71C1C' : s.risk >= 40 ? '#D4920A' : '#2D6A4F';
+  const statusColor = s.status === 'Active' ? 'var(--green)' : 'var(--amber)';
+
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>
+      <span class="risk-dot" style="background:${dotColor}"></span>
+      <span style="font-size:12px;font-weight:${isDRC?'600':'400'}">${s.name}</span>
+    </td>
+    <td style="text-align:center;font-family:var(--mono)">${s.artisans}</td>
+    <td>
+      <span style="font-family:var(--mono);font-weight:700;color:${riskColor};font-size:12px">${s.risk}</span>
+      <div class="risk-bar-track"><div class="risk-bar-fill" style="width:${s.risk}%;background:${dotColor}"></div></div>
+    </td>
+    <td style="font-family:var(--mono);font-size:11px;color:${isDRC && s.dist < 300 ? 'var(--red)' : 'var(--muted)'}">
+      ${s.dist > 999 ? (s.dist/1000).toFixed(1)+'K' : s.dist}km
+    </td>
+    <td style="font-size:11px;font-weight:600;color:${statusColor}">${s.status}</td>
+  `;
+  supBody.appendChild(row);
+});
+
+// ── CONFLICT TIMELINE ─────────────────────────────────────────────────────────
+const tl = document.getElementById('timeline');
+const sevColors = {CRITICAL:'#B71C1C', HIGH:'#C0522A', MEDIUM:'#D4920A', LOW:'#2D6A4F'};
+CONFLICT.forEach(e => {
+  const div = document.createElement('div');
+  div.className = 'timeline-event';
+  div.innerHTML = `
+    <div class="t-dot" style="background:${sevColors[e.sev]}"></div>
+    <div class="t-date">${e.date}</div>
+    <div>
+      <div class="t-text">${e.desc}</div>
+      <div class="t-region">${e.phase} phase · ${e.displaced} displaced · <strong style="color:${sevColors[e.sev]}">${e.sev}</strong></div>
+    </div>
+  `;
+  tl.appendChild(div);
+});
+
+// ── DIASPORA GRID ─────────────────────────────────────────────────────────────
+const dg = document.getElementById('diasporaGrid');
+DIASPORA.forEach(d => {
+  const card = document.createElement('div');
+  card.className = `diaspora-card ${d.status === 'Active' ? 'active' : 'explore'}`;
+  card.innerHTML = `
+    <div class="diaspora-name">${d.name.split('—')[0].trim()}</div>
+    <div class="diaspora-loc">📍 ${d.loc}</div>
+    <div class="diaspora-stat">Capacity: <strong>${d.units} units/yr</strong></div>
+    <div class="diaspora-stat">Cost premium: <strong>+${d.premium}%</strong></div>
+    <div class="diaspora-stat">Lead time: <strong>${d.lead} days</strong></div>
+    <div style="margin-top:6px;font-size:10px;font-weight:700;color:${d.status==='Active'?'var(--green)':'var(--amber)'}">
+      ${d.status === 'Active' ? '✓ Active Partner' : '◌ Exploratory'}
+    </div>
+  `;
+  dg.appendChild(card);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+[
+  {
+    "id": "SUP-001",
+    "name": "Nkosi Weaving Collective",
+    "region": "Kasai-Central, DRC",
+    "product": "Kuba Cloth \u2014 Cut Pile (Kasai Velvet)",
+    "artisans": 24,
+    "annual_units": 320,
+    "relationship_years": 8,
+    "last_contact": "2024-01-12",
+    "contact_status": "Active",
+    "distance_to_conflict_km": 280,
+    "risk_score": 72
+  },
+  {
+    "id": "SUP-002",
+    "name": "Bushoong Royal Weavers",
+    "region": "Kasai-Central, DRC",
+    "product": "Kuba Cloth \u2014 Embroidered Panel",
+    "artisans": 12,
+    "annual_units": 140,
+    "relationship_years": 6,
+    "last_contact": "2024-01-08",
+    "contact_status": "Active",
+    "distance_to_conflict_km": 310,
+    "risk_score": 68
+  },
+  {
+    "id": "SUP-003",
+    "name": "Shoowa Textile Guild",
+    "region": "Kasai-Oriental, DRC",
+    "product": "Kuba Cloth \u2014 Cut Pile (Kasai Velvet)",
+    "artisans": 18,
+    "annual_units": 200,
+    "relationship_years": 4,
+    "last_contact": "2023-12-15",
+    "contact_status": "Intermittent",
+    "distance_to_conflict_km": 195,
+    "risk_score": 81
+  },
+  {
+    "id": "SUP-004",
+    "name": "Kumasi Kente Cooperative",
+    "region": "Ashanti, Ghana",
+    "product": "Kente Cloth \u2014 Ghana",
+    "artisans": 32,
+    "annual_units": 480,
+    "relationship_years": 9,
+    "last_contact": "2024-01-18",
+    "contact_status": "Active",
+    "distance_to_conflict_km": 2800,
+    "risk_score": 12
+  },
+  {
+    "id": "SUP-005",
+    "name": "Segou Mudcloth Artisans",
+    "region": "Segou, Mali",
+    "product": "Mudcloth \u2014 Mali",
+    "artisans": 15,
+    "annual_units": 290,
+    "relationship_years": 5,
+    "last_contact": "2024-01-10",
+    "contact_status": "Active",
+    "distance_to_conflict_km": 0,
+    "risk_score": 44
+  }
+]

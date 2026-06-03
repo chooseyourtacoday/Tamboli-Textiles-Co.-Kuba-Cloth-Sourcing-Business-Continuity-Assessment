@@ -1,0 +1,38 @@
+{
+  "Base Case (Status Quo)": {
+    "description": "Conflict remains in eastern DRC. Kasai region stable. Supply chain intact.",
+    "drc_revenue_impact": 0.0,
+    "probability": 0.3,
+    "timeline": "0-6 months",
+    "annual_revenue_impact": 0,
+    "humanitarian_risk": "LOW",
+    "recommended_action": "Monitor monthly. Maintain current relationships."
+  },
+  "Scenario A \u2014 Moderate Escalation": {
+    "description": "Conflict expands toward Kasai. Intermittent supply disruption. Lead times +60 days.",
+    "drc_revenue_impact": -0.4,
+    "probability": 0.45,
+    "timeline": "3-9 months",
+    "annual_revenue_impact": -116400,
+    "humanitarian_risk": "MEDIUM",
+    "recommended_action": "Activate diaspora supplier network. Increase safety stock. Reduce new DRC orders by 40%."
+  },
+  "Scenario B \u2014 Severe Escalation": {
+    "description": "Conflict reaches Kasai-Central. Supply routes cut. Artisan safety at risk.",
+    "drc_revenue_impact": -0.85,
+    "probability": 0.2,
+    "timeline": "6-18 months",
+    "annual_revenue_impact": -247350,
+    "humanitarian_risk": "CRITICAL",
+    "recommended_action": "Suspend DRC orders. Full pivot to diaspora network. Establish artisan emergency fund."
+  },
+  "Scenario C \u2014 Conflict Reaches Kuba Homeland": {
+    "description": "Direct conflict in Kasai. Production impossible. Artisan displacement likely.",
+    "drc_revenue_impact": -1.0,
+    "probability": 0.05,
+    "timeline": "12-24 months",
+    "annual_revenue_impact": -291000,
+    "humanitarian_risk": "CRITICAL",
+    "recommended_action": "Emergency response. Activate NGO partnerships. Pivot entirely to diaspora + alternative sourcing."
+  }
+}

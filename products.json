@@ -1,0 +1,47 @@
+{
+  "Kuba Cloth \u2014 Cut Pile (Kasai Velvet)": {
+    "origin": "Kasai Region, DRC",
+    "people": "Kuba/Shoowa",
+    "cost_usd": 45,
+    "retail_usd": 195,
+    "lead_time_days": 90,
+    "risk_exposure": "HIGH",
+    "pct_revenue": 0.38
+  },
+  "Kuba Cloth \u2014 Embroidered Panel": {
+    "origin": "Kasai Region, DRC",
+    "people": "Kuba",
+    "cost_usd": 65,
+    "retail_usd": 275,
+    "lead_time_days": 90,
+    "risk_exposure": "HIGH",
+    "pct_revenue": 0.22
+  },
+  "Kente Cloth \u2014 Ghana": {
+    "origin": "Ashanti Region, Ghana",
+    "people": "Ashanti/Ewe",
+    "cost_usd": 55,
+    "retail_usd": 220,
+    "lead_time_days": 45,
+    "risk_exposure": "LOW",
+    "pct_revenue": 0.18
+  },
+  "Mudcloth \u2014 Mali": {
+    "origin": "Segou Region, Mali",
+    "people": "Bamana",
+    "cost_usd": 30,
+    "retail_usd": 135,
+    "lead_time_days": 60,
+    "risk_exposure": "MEDIUM",
+    "pct_revenue": 0.13
+  },
+  "Adinkra Cloth \u2014 Ghana": {
+    "origin": "Ntonso, Ghana",
+    "people": "Ashanti",
+    "cost_usd": 25,
+    "retail_usd": 110,
+    "lead_time_days": 45,
+    "risk_exposure": "LOW",
+    "pct_revenue": 0.09
+  }
+}
