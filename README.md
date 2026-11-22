@@ -8,6 +8,12 @@
 
 ---
 
+**The company data is synthetic.** Tamboli Textiles Co. is a fictional company created for this portfolio. Revenue, products, suppliers, diaspora capacity, and scenario dollar figures were made up for the analysis. They are not records from a real business. Public conflict sources are listed separately under [Data Sources](#data-sources).
+
+![Annual revenue by supply-chain risk tier, 2019–2024, with a sharp drop in 2024, beside 2023 revenue share by product. DRC-sourced Kuba cloth is the largest slice.](chart_01_revenue_exposure.png)
+
+![Projected annual revenue by conflict scenario, from a $685K baseline to $278K if conflict reaches the Kuba homeland, beside a probability-and-impact risk matrix.](chart_03_scenarios.png)
+
 ## The Scenario
 
 > *"A fabric and textile company imports Kuba cloth from the Kuba people in the Kasai region of the DRC. The ongoing civil war is expanding. The company wants to understand how this will affect their sales — and for ethical and humanitarian reasons, they do not want to use PMCs."*
@@ -73,9 +79,10 @@ Four Kuba diaspora collectives identified in Brussels, Paris, Brooklyn, and Lond
 
 | File | Contents |
 |---|---|
-| `drc_supply_chain_analysis.ipynb` | Full 6-section analysis notebook |
-| `Tamboli_DRC_Risk_Report.xlsx` | 4-sheet Excel risk report |
-| `generate_data.py` | Synthetic data generator |
+| [`drc_supply_chain_analysis.ipynb`](drc_supply_chain_analysis.ipynb) | Full 6-section analysis notebook |
+| [`Tamboli_DRC_Risk_Report.xlsx`](Tamboli_DRC_Risk_Report.xlsx) | 4-sheet Excel risk report |
+
+`generate_data.py` is **not included** in this repository. The synthetic company datasets are already checked in: [`revenue_history.csv`](revenue_history.csv), [`products.json`](products.json), [`suppliers.json`](suppliers.json), [`diaspora_suppliers.json`](diaspora_suppliers.json), and [`scenarios.json`](scenarios.json). The notebook also reads [`conflict_events.csv`](conflict_events.csv), a short conflict series compiled for the analysis.
 
 **Excel sheets:**
 - Risk Dashboard — KPI indicators with traffic light status
@@ -87,7 +94,7 @@ Four Kuba diaspora collectives identified in Brussels, Paris, Brooklyn, and Lond
 
 ## Data Sources
 
-All company, supplier, and revenue data is synthetic. Conflict data is grounded in real events:
+All company, supplier, and revenue data is synthetic. Tamboli Textiles Co. is not a real company, and the business figures were created for this portfolio. Conflict data is grounded in real events:
 
 - **ACLED** — Armed Conflict Location & Event Data Project
 - **UN OCHA** — Humanitarian situation reports
